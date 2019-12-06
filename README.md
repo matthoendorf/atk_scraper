@@ -37,7 +37,7 @@ Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 5. The page source is passed to BeautifulSoup, which extracts all recipe links.
 6. Each recipe link is loaded with Selenium. Page dimensions are determined using page divs. 
 7. The Chrome window is resized to fit these dimensions and a screenshot is saved to ```./recipes```.
-8. Once screenshots have been saved for every recipe on a page, they are cleaned using Pillow and saved to ```./recipes_trimmed```.
+8. Screenshots are cleaned using Pillow and saved to ```./recipes_trimmed```.
 9. The program will load the next page and repeat.
 
 ### Improvements
