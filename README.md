@@ -2,7 +2,7 @@
 
 Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 
-### Prerequisites 
+### Pre-requisites 
 
 * [Chrome v78](https://www.techspot.com/downloads/4718-google-chrome-for-windows.html).
   * If you have a different version of Chrome, replace ```chromedriver.exe``` with the corresponding driver found [here](https://chromedriver.chromium.org/).
