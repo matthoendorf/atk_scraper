@@ -1,4 +1,4 @@
-# atk_scraper - America's Test Kitchen Scraper
+# atk_scraper - America's Test Kitchen Scraper 
 
 Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 
@@ -44,3 +44,7 @@ Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 ### Improvements
 
 Visit the "Issues" page for proposed improvements.
+
+### Happy Cooking!
+
+![https://listemoji.com/assets/img/emoji/1f373.png](https://listemoji.com/assets/img/emoji/1f373.png)
