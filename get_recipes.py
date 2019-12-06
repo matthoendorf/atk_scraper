@@ -32,10 +32,12 @@ def format_images(index):
     digits = len(str(length))
     curr = 1
 
+    print('Trimming...')
+
     for image in images:
         print('{0} / {1} | https://www.americastestkitchen.com/recipes/{2}'.format(
             str(curr).zfill(digits), length, image.replace('.png', '')))
-        im = Image.open('./recipes/' + index + '/' + image)
+        im = Image.open('./recipes/' + str(index) + '/' + image)
 
         border = (315, 209, 315, 0)  # left, up, right, bottom
         try:
@@ -43,7 +45,7 @@ def format_images(index):
             color = im.getpixel((0, 0))
             im = trim(im)
             im = ImageOps.expand(im, 50, color)
-            im.save('./recipes_trimmed/' + index + '/' + image)
+            im.save('./recipes_trimmed/' + str(index) + '/' + image)
         except:
             print('failed')
         curr += 1
@@ -65,6 +67,7 @@ def save_recipes(page, index):
             return False
         return True
 
+    print('Starting...')
     try:
         # Launch chrome driver
         chrome_options = Options()
@@ -131,14 +134,18 @@ def save_recipes(page, index):
     digits = len(str(length))
     curr = 1
 
-    # Iterate over each recipe link,
+    # Iterate over each recipe link
     for link in links:
 
         # Load the recipe
         print('{0} / {1} | https://www.americastestkitchen.com{2}'.format(
             str(curr).zfill(digits), length, link))
-        driver.get("https://www.americastestkitchen.com{0}".format(link))
-        time.sleep(5)
+        if link == '/recipes/24-easy-caramel-sauce':
+            link = '/recipes/10610-all-purpose-caramel-sauce'
+            driver.get("https://www.cooksillustrated.com/recipes/10610-all-purpose-caramel-sauce")
+        else:
+            driver.get("https://www.americastestkitchen.com{0}".format(link))
+        time.sleep(2)
 
         # Get the pixel height of page content for screenshot
         ele1 = driver.find_element(
@@ -154,7 +161,7 @@ def save_recipes(page, index):
 
         # Set chrome window to 1920 x content height
         driver.set_window_size(1920, total_height)  # the trick
-        time.sleep(3)
+        time.sleep(2)
 
         # Save screenshot
         driver.save_screenshot(
