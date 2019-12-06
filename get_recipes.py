@@ -179,7 +179,7 @@ if __name__ == "__main__":
         # The Complete Vegetarian Cookbook
         'https://www.americastestkitchen.com/books/the-complete-vegetarian?q=&fR[search_browse_slugs][0]=the-complete-vegetarian&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk',
         # The Complete Slow Cooker Cookbook
-        'https://www.americastestkitchen.com/books/the-complete-slow-cooker?q=&fR[search_browse_slugs][0]=the-complete-slow-cooker&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk'
+        'https://www.americastestkitchen.com/books/the-complete-slow-cooker?q=&fR[search_browse_slugs][0]=the-complete-slow-cooker&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk',
         # Grilling & BBQ
         'https://www.americastestkitchen.com/recipes/browse/grilling?q=&fR[search_browse_slugs][0]=grilling&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk',
         # Desserts & Baked Goods
