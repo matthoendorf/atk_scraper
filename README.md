@@ -1,4 +1,4 @@
-# atk_scraper - America's Test Kitchen Scraper 
+# America's Test Kitchen Recipe Scraper 
 
 Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 
