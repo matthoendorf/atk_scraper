@@ -4,12 +4,13 @@ Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 
 ### Prerequisites 
 
-* [Chrome v78](https://www.techspot.com/downloads/4718-google-chrome-for-windows.html)
-  * If you have a different version of Chrome, replace ```chromedriver.exe``` with the corresponding driver found [here](https://chromedriver.chromium.org/)
+* [Chrome v78](https://www.techspot.com/downloads/4718-google-chrome-for-windows.html).
+  * If you have a different version of Chrome, replace ```chromedriver.exe``` with the corresponding driver found [here](https://chromedriver.chromium.org/).
 
-* Python 3.6 with an environment built off of ```requirements.txt```
+* Python 3.6 with an environment built off of ```requirements.txt```.
 
 * America's Test Kitchen/Cook's Country/Cook's Illustrated web subscription (or [trial](https://www.cooksillustrated.com/trial)).
+  
   Update the following lines with your login information:
 
   ```
