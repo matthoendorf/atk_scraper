@@ -27,7 +27,7 @@ Scrapes America's Test Kitchen website for recipes and saves as PNGs.
   'https://www.americastestkitchen.com/books/the-perfect-cookie?q=&fR[search_browse_slugs][0]=the-perfect-cookie&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk'
   ]
   ```
-  * **NOTE: using "[All Recipes](https://www.americastestkitchen.com/recipes/browse)" page will not work as the site stops loading recipes after a finite amount. It will not load "All Recipes" as the name implies. This is why I separate by category.**
+  * **NOTE: using "[All Recipes](https://www.americastestkitchen.com/recipes/browse)" page will not work as the site stops loading recipes after 900 are reached. It will not load "All Recipes" as the name implies. This is why I separate by category.**
   
 ### Process
 
