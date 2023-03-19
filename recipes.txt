@@ -1,0 +1,62 @@
+# Cook It In Cast Iron
+https://www.americastestkitchen.com/books/cook-it-in-cast-iron?q=&fR[search_browse_slugs][0]=cook-it-in-cast-iron&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The Perfect Cookie Cookbook
+https://www.americastestkitchen.com/books/the-perfect-cookie?q=&fR[search_browse_slugs][0]=the-perfect-cookie&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The Complete Vegetarian Cookbook
+https://www.americastestkitchen.com/books/the-complete-vegetarian?q=&fR[search_browse_slugs][0]=the-complete-vegetarian&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The Complete Slow Cooker Cookbook
+https://www.americastestkitchen.com/books/the-complete-slow-cooker?q=&fR[search_browse_slugs][0]=the-complete-slow-cooker&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The Complete Plant-Based Cookbook
+https://www.americastestkitchen.com/books/the-complete-plant-based-cookbook?q=&fR[search_browse_slugs][0]=the-complete-plant-based-cookbook&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The Complete Salad Cookbook
+https://www.americastestkitchen.com/books/the-complete-salad-cookbook?q=&fR[search_browse_slugs][0]=the-complete-salad-cookbook&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Vegetables Illustrated
+https://www.americastestkitchen.com/books/vegetables-illustrated?q=&fR[search_browse_slugs][0]=vegetables-illustrated&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Complete SUmmer Cookbook
+https://www.americastestkitchen.com/books/the-complete-summer-cookbook?q=&fR[search_browse_slugs][0]=the-complete-summer-cookbook&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Foolproof Fish
+https://www.americastestkitchen.com/books/foolproof-fish?q=&fR[search_browse_slugs][0]=foolproof-fish&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Cook it in your Dutch Oven
+https://www.americastestkitchen.com/books/cook-it-in-your-dutch-oven?q=&fR[search_browse_slugs][0]=cook-it-in-your-dutch-oven&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Spiced
+https://www.americastestkitchen.com/books/spiced?q=&fR[search_browse_slugs][0]=spiced&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# How to Cocktail
+https://www.americastestkitchen.com/books/how-to-cocktail?q=&fR[search_browse_slugs][0]=how-to-cocktail&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk        
+# one pan wonders
+https://www.americastestkitchen.com/books/one-pan-wonders?q=&fR[search_browse_slugs][0]=one-pan-wonders&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# foolproof preserving
+https://www.americastestkitchen.com/books/foolproof-preserving?q=&fR[search_browse_slugs][0]=foolproof-preserving&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Vegan for Everybody
+https://www.americastestkitchen.com/books/vegan-for-everybody?q=&fR[search_browse_slugs][0]=vegan-for-everybody&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Nutritious Delicious
+https://www.americastestkitchen.com/books/nutritious-delicious?q=&fR[search_browse_slugs][0]=nutritious-delicious&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The complete Slow Cooker
+https://www.americastestkitchen.com/books/the-complete-slow-cooker?q=&fR[search_browse_slugs][0]=the-complete-slow-cooker&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Complete Vegetarian
+https://www.americastestkitchen.com/books/the-complete-vegetarian?q=&fR[search_browse_slugs][0]=the-complete-vegetarian&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# The Perfect Cake
+https://www.americastestkitchen.com/books/the-perfect-cake?q=&fR[search_browse_slugs][0]=the-perfect-cake&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Light
+https://www.americastestkitchen.com/recipes/browse?refinementList%5Bsearch_recipe_type_list%5D%5B0%5D=Light&refinementList%5Bsearch_document_klass%5D%5B0%5D=recipe
+# Grilling & BBQ
+https://www.americastestkitchen.com/recipes/browse/grilling?q=&fR[search_browse_slugs][0]=grilling&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Desserts & Baked Goods
+https://www.americastestkitchen.com/recipes/browse/desserts?q=&fR[search_browse_slugs][0]=desserts&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Soups & Stews
+https://www.americastestkitchen.com/recipes/browse/soups?q=&fR[search_browse_slugs][0]=soups&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Fish & Seafood
+https://www.americastestkitchen.com/recipes/browse/seafood?q=&fR[search_browse_slugs][0]=seafood&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Eggs & Breakfast
+https://www.americastestkitchen.com/recipes/browse/breakfast?q=&fR[search_browse_slugs][0]=breakfast&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Marinades & Sauces
+https://www.americastestkitchen.com/recipes/browse/sauces?q=&fR[search_browse_slugs][0]=sauces&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Vegetarian
+https://www.americastestkitchen.com/recipes/browse?refinementList%5Bsearch_recipe_type_list%5D%5B0%5D=Vegetarian&refinementList%5Bsearch_document_klass%5D%5B0%5D=recipe
+# Beans & Grains
+https://www.americastestkitchen.com/recipes/browse/beans_and_grains?q=&fR[search_browse_slugs][0]=beans_and_grains&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Weeknight
+https://www.americastestkitchen.com/recipes/browse?refinementList%5Bsearch_recipe_type_list%5D%5B0%5D=Weeknight&refinementList%5Bsearch_document_klass%5D%5B0%5D=recipe
+# Salads
+https://www.americastestkitchen.com/recipes/browse/salads?q=&fR[search_browse_slugs][0]=salads&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+# Vegetables
+https://www.americastestkitchen.com/recipes/browse?refinementList%5Bsearch_main_ingredient_list%5D%5B0%5D=Vegetables&refinementList%5Bsearch_document_klass%5D%5B0%5D=recipe
