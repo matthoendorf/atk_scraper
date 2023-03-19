@@ -7,7 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as wait
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
-from os.path  import basename
+import os
+from os.path import basename
 from os.path import splitext
 from os.path import exists
 import time
@@ -108,7 +109,7 @@ def format_images(path):
             color = im.getpixel((0, 0))
             im = trim(im)
             im = ImageOps.expand(im, 50, color)
-            im.save(path + '/trimmed/'+newname)
+            im.save(newname)
         except Exception as e:
             print(e)
         curr += 1
@@ -322,6 +323,9 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     pages = read_pages(args.recipes)
+    if not exists(args.out_path):
+        os.mkdir(args.out_path)
+
     if args.verbose:
         print("Read " + str(len(pages)) + " recipe pages to scrape from")
 
