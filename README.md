@@ -1,33 +1,27 @@
 # America's Test Kitchen Recipe Scraper 
 
-Scrapes America's Test Kitchen website for recipes and saves as PNGs.
+Scrapes America's Test Kitchen website for recipes and saves PNG screenshots and/or JSON for import to a recipe manager (e.g. https://mealie.io).
 
 ### Pre-requisites 
 
-* [Chrome v78](https://www.techspot.com/downloads/4718-google-chrome-for-windows.html).
+* [Chrome v111](https://www.techspot.com/downloads/4718-google-chrome-for-windows.html).
   * If you have a different version of Chrome, replace ```chromedriver.exe``` with the corresponding driver found [here](https://chromedriver.chromium.org/).
 
 * Python 3.6 with an environment built off of ```requirements.txt```.
 
 * America's Test Kitchen/Cook's Country/Cook's Illustrated web subscription (or [trial](https://www.cooksillustrated.com/trial)).
   
-  Update the following lines with your login information:
-
-  ```
-  YOUR_ATK_EMAIL = 'test@test.com'
-  YOUR_ATK_PASSWORD = 'test_password'
-  ```
-
-* A list of page URLs that contain recipe links (e.g. category pages). 
-  * Example:
-  ```
-  pages = [
-  'https://www.americastestkitchen.com/books/cook-it-in-cast-iron?q=&fR[search_browse_slugs][0]=cook-it-in-cast-iron&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk',
-  'https://www.americastestkitchen.com/recipes/browse/holiday?q=&fR[search_browse_slugs][0]=holiday&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk',
-  'https://www.americastestkitchen.com/books/the-perfect-cookie?q=&fR[search_browse_slugs][0]=the-perfect-cookie&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk'
-  ]
-  ```
-  * **NOTE: using "[All Recipes](https://www.americastestkitchen.com/recipes/browse)" page will not work as the site stops loading recipes after 900 are reached. It will not load "All Recipes" as the name implies. This is why I separate by category.**
+### Options
+Several options control get_recipes.py:
+* ```-h, --help``` : show this help message and exit
+* ```-e EMAIL, --email EMAIL``` : ATK email for login.
+* ```-p PASSWORD, --password PASSWORD``` : SINGLE QUOTED ATK password for login. For example * ```'my_password!*'```
+* ```-r RECIPES, --recipes RECIPES``` : Text file containing a list of ATK pages to grab recipes from. See recipes.txt for an example. Using "[All Recipes](https://www.americastestkitchen.com/recipes/browse)" page will not work as the site stops loading recipes after 900 are reached. It will not load "All Recipes" as the name implies. This is why I separate by category.
+* ```-i IMAGE, --image IMAGE``` : Get recipes as images (default True)
+* ```-j JSON, --json JSON``` : Get recipes as json for mealie (default True)
+* ```-o OUT_PATH, --out_path OUT_PATH``` : Location to save images/json (default './recipes/')
+* ```--driver DRIVER ``` : Path to the chromedriver. (default './chromedriver')
+* ```--verbose``` : verbose output
   
 ### Process
 
@@ -37,8 +31,8 @@ Scrapes America's Test Kitchen website for recipes and saves as PNGs.
 4. For each page, it clicks "Load More Recipes" until all recipes are displayed.
 5. The page source is passed to BeautifulSoup, which extracts all recipe links.
 6. Each recipe link is loaded with Selenium. Page dimensions are determined using page divs. 
-7. The Chrome window is resized to fit these dimensions and a screenshot is saved to ```./recipes```.
-8. Screenshots are cleaned using Pillow and saved to ```./recipes_trimmed```.
+7. If ```-i``` is specified, a screenshot is saved. The Chrome window is resized to fit these dimensions and a screenshot is saved to the specified path. Screenshots are cleaned using Pillow and saved as ```<image>.trimmed.png```
+8. If ```-j``` is specified, recipe information is smartly scraped and loaded into JSON for later import to a recipe manager. The highlight image is also saved as a ```.jp2``` image (this is the format used by ATK)
 9. The program will load the next page and repeat.
 
 ### Improvements
