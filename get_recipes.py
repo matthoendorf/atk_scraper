@@ -10,7 +10,6 @@ from selenium.webdriver.chrome.options import Options
 import os
 from os.path import basename
 from os.path import splitext
-from os.path import exists
 import time
 import json
 import glob
@@ -21,8 +20,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser(
         prog="atk_scraper",
         description = "scrape ATK recipes to images, mealie json, or both")
-    parser.add_argument('-e', '--email', required=True, help="SINGLE QUOTED ATK email for login. For example 'my_password!*'")
-    parser.add_argument('-p', '--password', required=True, help="Your ATK password for login")
+    parser.add_argument('-e', '--email', required=True, help="ATK email for login.")
+    parser.add_argument('-p', '--password', required=True, help="SINGLE QUOTED ATK password for login. For example 'my_password!*'")
     parser.add_argument('-r', '--recipes', required=True, help="Text file containing a list of ATK pages to grab recipes from. See recipes.txt for an example")
     parser.add_argument('-i', '--image', required=False, default=True, help="Get recipes as images (default True)")
     parser.add_argument('-j', '--json', required=False, default=True, help="Get recipes as json for mealie (default True)")
@@ -93,7 +92,7 @@ def trim(im):
 
 def format_images(path):
     # trims images and adds equal border around each, saves to new folder
-    images = glob.glob(path+'*.png')
+    images = glob.glob(path+'/'+'*.png')
     curr = 1
 
     print('Trimming...')
@@ -109,7 +108,7 @@ def format_images(path):
             color = im.getpixel((0, 0))
             im = trim(im)
             im = ImageOps.expand(im, 50, color)
-            im.save(newname)
+            im.save(path+'/'+newname)
         except Exception as e:
             print(e)
         curr += 1
@@ -144,7 +143,7 @@ def load_full_page(driver):
         
     return(driver)
 
-def make_image(driver):
+def make_image(driver, slug, savepath):
     """
     Returns image containing screenshot of the page, ready for writing
     """
@@ -164,11 +163,9 @@ def make_image(driver):
         driver.set_window_size(1920, total_height)  # the trick
         time.sleep(2)
         # Save screenshot
-        FIXME
-        screenshot = driver.save_screenshot(savepath+slug+".png") # FIXME
-        return screenshot
-    except:
-        return None        
+        screenshot = driver.save_screenshot(savepath+"/"+slug+".png") # FIXME
+    except Exception as e:
+        print(e)
 
 def make_json(driver):
     """
@@ -198,11 +195,13 @@ def make_json(driver):
 
     # IMAGE
     img =  soup.find('img', attrs={'class': 'img recipe-detail-header__image'})
+    img_handle = None
     if img != None:
         if "http" in img.get('src'):
             lnk = img.get('src')
-            with open(savepath+slug+".jp2", "wb") as f:
-                f.write(requests.get(lnk).content)
+            img_handle = requests.get(lnk).content
+            #with open(savepath+slug+".jp2", "wb") as f:
+                #f.write(requests.get(lnk).content)
 
     # EXTRAS
     servestime = []
@@ -258,7 +257,7 @@ def make_json(driver):
     recipe["recipeYield"] = recipeyield
     recipe["recipeIngredient"] = [{"note":ingredient} for ingredient in ingredients]
     recipe["recipeInstructions"] = [{"text":step} for step in steps]
-    recipe["org_url"]  = "https://www.americastestkitchen.com"+link
+    recipe["org_url"]  = driver.current_url
     recipe["settings"] = {
         "public": True,
         "showNutrition": False,
@@ -267,6 +266,7 @@ def make_json(driver):
         "disableComments": False,
         "disableAmount": False
     }
+    return (recipe, img_handle)
 
 def save_recipes(driver, page, do_image, do_json, savepath):
     driver.get(page)
@@ -305,25 +305,30 @@ def save_recipes(driver, page, do_image, do_json, savepath):
         
         time.sleep(1)
         
-        if do_image and not exists(savepath+slug+".png"):
-            image_file = make_image(driver, savepath)
-            driver.save_screenshot(savepath+slug+".png")
-        else:
-            print("Already fetched " + slug + " image")
+        if do_image:
+            if os.path.exists(savepath+"/"+slug+".png"):
+                print("Already fetched image for " + slug)
+            else:
+                make_image(driver, slug, savepath)
 
-        if do_json and not exists(savepath+slug+".json"):
-            recipe = make_json(driver, savepath)
-            with open(savepath+slug+".json", "w") as write_file:
-                json.dump(recipe, write_file, indent=4)
-        else:
-            print("Already fetched " + slug + " json")
+        if do_json:
+            if os.path.exists(savepath+"/"+slug+".json"):
+                print("Already fetched json for " + slug)
+            else:
+                recipe, img = make_json(driver)
+                with open(savepath+"/"+slug+".json", "w") as write_file:
+                    json.dump(recipe, write_file, indent=4)
+                if img != None:
+                    with open(savepath+"/"+slug+".jp2", "wb") as f:
+                        f.write(img)
+                
         curr += 1
 
 if __name__ == "__main__":
     args = parse_arguments()
 
     pages = read_pages(args.recipes)
-    if not exists(args.out_path):
+    if not os.path.exists(args.out_path):
         os.mkdir(args.out_path)
 
     if args.verbose:
