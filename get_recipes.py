@@ -11,6 +11,7 @@ import os
 from os.path import basename
 from os.path import splitext
 import time
+import uuid
 import json
 import glob
 from PIL import Image, ImageChops, ImageOps
@@ -192,6 +193,13 @@ def make_json(driver):
         description = re.sub(r'\n', ' ', description) # remove internal linebreaks
     except:
         description = ""
+    
+    # TAGS
+    try:
+        tags = soup.find_all('div', attrs={'data-label': re.compile('.*')})
+        tags = [tag.get('data-label') for tag in tags]
+    except:
+        tags = []
 
     # IMAGE
     img =  soup.find('img', attrs={'class': 'img recipe-detail-header__image'})
@@ -200,8 +208,6 @@ def make_json(driver):
         if "http" in img.get('src'):
             lnk = img.get('src')
             img_handle = requests.get(lnk).content
-            #with open(savepath+slug+".jp2", "wb") as f:
-                #f.write(requests.get(lnk).content)
 
     # EXTRAS
     servestime = []
@@ -253,10 +259,11 @@ def make_json(driver):
     recipe = {}
     recipe["name"] = title
     recipe["description"] = description
+    recipe["tags"] = tags
     recipe["totalTime"] = totaltime
     recipe["recipeYield"] = recipeyield
-    recipe["recipeIngredient"] = [{"note":ingredient} for ingredient in ingredients]
-    recipe["recipeInstructions"] = [{"text":step} for step in steps]
+    recipe["recipeIngredient"] = [{"note":ingredient, "referenceId":str(uuid.uuid4())} for ingredient in ingredients]
+    recipe["recipeInstructions"] = [{"text":step, "id":str(uuid.uuid4()), "ingredientReferences":[]} for step in steps]
     recipe["org_url"]  = driver.current_url
     recipe["settings"] = {
         "public": True,
@@ -294,6 +301,19 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     for link in links:
         slug = basename(link)
 
+        if do_image & do_json:
+            if os.path.exists(savepath+"/"+slug+".png") & os.path.exists(savepath+"/"+slug+".json"):
+                print("Already fetched image and json for " + slug)
+                continue
+        elif do_image:
+            if os.path.exists(savepath+"/"+slug+".png"):
+                print("Already fetched image and json for " + slug)
+                continue
+        elif do_json:
+            if os.path.exists(savepath+"/"+slug+".json"):
+                print("Already fetched json for " + slug)
+                continue
+
         # Load the recipe
         print('{0} / {1} | https://www.americastestkitchen.com{2}'.format(
             str(curr).zfill(digits), length, link))
@@ -306,21 +326,15 @@ def save_recipes(driver, page, do_image, do_json, savepath):
         time.sleep(1)
         
         if do_image:
-            if os.path.exists(savepath+"/"+slug+".png"):
-                print("Already fetched image for " + slug)
-            else:
-                make_image(driver, slug, savepath)
+            make_image(driver, slug, savepath)
 
         if do_json:
-            if os.path.exists(savepath+"/"+slug+".json"):
-                print("Already fetched json for " + slug)
-            else:
-                recipe, img = make_json(driver)
-                with open(savepath+"/"+slug+".json", "w") as write_file:
-                    json.dump(recipe, write_file, indent=4)
-                if img != None:
-                    with open(savepath+"/"+slug+".jp2", "wb") as f:
-                        f.write(img)
+            recipe, img = make_json(driver)
+            with open(savepath+"/"+slug+".json", "w") as write_file:
+                json.dump(recipe, write_file, indent=4)
+            if img != None:
+                with open(savepath+"/"+slug+".jp2", "wb") as f:
+                    f.write(img)
                 
         curr += 1
 
