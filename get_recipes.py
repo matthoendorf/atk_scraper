@@ -125,8 +125,8 @@ def check_exists_by_class(class_name):
 def load_full_page(driver):
     # Check for "Load More Recipes" button and click it until all are loaded
     while check_exists_by_class('browse-load-more') == True:
-        e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
         try:
+            e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
             e.click()
         except:
             # Sometimes a pop-up covers the screen, so we close that
@@ -140,8 +140,8 @@ def load_full_page(driver):
                     f.click()
                 except Exception as e:
                     # Other exceptions can be added here (additional pop-ups)
-                    print(e)
-        
+                    #print(e)
+                    pass
     return(driver)
 
 def make_image(driver, slug, savepath):
@@ -211,25 +211,26 @@ def make_json(driver):
 
     # EXTRAS
     servestime = []
-    extras = soup.find_all('p', attrs={'class': re.compile('recipe-detail-page__meta$')})
-    for extra in extras:
-        try:
-            e = extra.get_text(" ")
-        except:
-            e = ""
-        servestime.append(e)
+    totaltime = ""
+    recipeyield = ""
+    try:
+        extras = soup.find_all('p', attrs={'class': re.compile('recipe-detail-page__meta$')})
+        for extra in extras:
+            try:
+                e = extra.get_text("|",strip=True)
+            except:
+                e = ""
+            servestime.append(e)
         for x in servestime:
-            match = re.search('^(TIME )(.*)', x)
-            try:
+            match = re.search('^(TIME\|)(.*)', x)
+            if match:
                 totaltime = match.group(2)
-            except:
-                totaltime = ""
-            match = re.search('^(SERVES )(.*)', x)
-            try:
+            match = re.search('^(SERVES\|)(.*)', x)
+            if match:
                 recipeyield = match.group(2)
-            except:
-                recipeyield = ""
-
+    except:
+        totaltime = ""
+        recipeyield = ""
 
     # INGREDIENTS
     ingredients = []
@@ -280,8 +281,10 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     # Refresh to prevent loading errors
     driver.refresh()
     time.sleep(15)
-    
+    #print(page) # DEBUG
+    #print(driver.current_url) # DEBUG
     driver = load_full_page(driver)
+    #print(driver.current_url) # DEBUG
     time.sleep(2)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -289,7 +292,12 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     # Build list of recipe links
     links = []
     for link in soup.findAll('a', attrs={'href': re.compile("^\/recipes\/[0-9]")}):
-        links.append(link.get('href'))
+        l = link.get('href')
+        re.sub('\/print$', '', l) # I'm not sure why, but sometimes the pages have printable links inside
+        links.append(l)
+    #print(driver.current_url) # DEBUG
+    #print(page) # DEBUG
+    #print(links) # DEBUG
 
     # Variables for monitoring progress
     links = sorted(set(links))
