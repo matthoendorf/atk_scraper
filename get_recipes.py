@@ -122,26 +122,45 @@ def check_exists_by_class(class_name):
         return False
     return True
 
+# ATK gets a bit tricky and two different ways of loading more recipes, depending on cookbook vs category search
+def check_exists_by_text():
+    # Check if a page element exists based on class name (return bool)
+    try:
+        driver.find_element(By.LINK_TEXT, 'Show More Recipes')
+    except NoSuchElementException:
+        try:
+            driver.find_element(By.PARTIAL_LINK_TEXT, 'MORE RECIPES')
+        except NoSuchElementException:
+            return False
+    return True
+
+
 def load_full_page(driver):
     # Check for "Load More Recipes" button and click it until all are loaded
-    while check_exists_by_class('browse-load-more') == True:
+    #while check_exists_by_class('browse-load-more') == True:
+    while check_exists_by_text() == True:
         try:
-            e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
+            #e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
+            e = driver.find_element(By.LINK_TEXT, 'Show More Recipes')
             e.click()
         except:
-            # Sometimes a pop-up covers the screen, so we close that
             try:
-                d = driver.find_element(By.CLASS_NAME, 'bx-button')
-                d.click()
+                #e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
+                e = driver.find_element(By.PARTIAL_LINK_TEXT, 'MORE RECIPES')
+                e.click()
             except:
-                # This is another pop-up that covers the screen, so we close that too
+            # Sometimes a pop-up covers the screen, so we close that
                 try:
-                    f = driver.find_element(By.CLASS_NAME, 'bx-close-link')
-                    f.click()
-                except Exception as e:
-                    # Other exceptions can be added here (additional pop-ups)
-                    #print(e)
-                    pass
+                    d = driver.find_element(By.CLASS_NAME, 'bx-button')
+                    d.click()
+                except:
+                    # This is another pop-up that covers the screen, so we close that too
+                    try:
+                        f = driver.find_element(By.CLASS_NAME, 'bx-close-link')
+                        f.click()
+                    except Exception as e:
+                        # Other exceptions can be added here (additional pop-ups)
+                        pass
     return(driver)
 
 def make_image(driver, slug, savepath):
@@ -281,10 +300,10 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     # Refresh to prevent loading errors
     driver.refresh()
     time.sleep(15)
-    #print(page) # DEBUG
-    #print(driver.current_url) # DEBUG
+    #print("page = " + page) # DEBUG
+    #print("current_url preload = " + driver.current_url) # DEBUG
     driver = load_full_page(driver)
-    #print(driver.current_url) # DEBUG
+    #print("current_url post-load = " + driver.current_url) # DEBUG
     time.sleep(2)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -293,11 +312,9 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     links = []
     for link in soup.findAll('a', attrs={'href': re.compile("^\/recipes\/[0-9]")}):
         l = link.get('href')
-        re.sub('\/print$', '', l) # I'm not sure why, but sometimes the pages have printable links inside
         links.append(l)
-    #print(driver.current_url) # DEBUG
-    #print(page) # DEBUG
-    #print(links) # DEBUG
+    #print("current_url = " + driver.current_url) # DEBUG
+    #print("page = " + page) # DEBUG
 
     # Variables for monitoring progress
     links = sorted(set(links))
