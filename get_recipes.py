@@ -161,7 +161,7 @@ def load_full_page(driver):
                     except Exception as e:
                         # Other exceptions can be added here (additional pop-ups)
                         pass
-    return(driver)
+    return driver
 
 def make_image(driver, slug, savepath):
     """
@@ -350,9 +350,6 @@ def save_recipes(driver, page, do_image, do_json, savepath):
         
         time.sleep(1)
         
-        if do_image:
-            make_image(driver, slug, savepath)
-
         if do_json:
             recipe, img = make_json(driver)
             with open(savepath+"/"+slug+".json", "w") as write_file:
@@ -360,7 +357,8 @@ def save_recipes(driver, page, do_image, do_json, savepath):
             if img != None:
                 with open(savepath+"/"+slug+".jp2", "wb") as f:
                     f.write(img)
-                
+        if do_image:
+            make_image(driver, slug, savepath) # makes a screenshot internally
         curr += 1
 
 if __name__ == "__main__":
@@ -376,6 +374,7 @@ if __name__ == "__main__":
     driver = create_driver(args.driver)
     driver = login(driver, args.email, args.password)
     for page in pages:
+        print("Working on "+page)
         save_recipes(driver, page, args.image, args.json, args.out_path)
     
     # Close chrome
