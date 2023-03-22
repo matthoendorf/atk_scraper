@@ -3,9 +3,9 @@ import requests
 import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait as wait
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import os
 from os.path import basename
@@ -59,6 +59,7 @@ def create_driver(path):
         exit()
 
 def login(driver, email, password):
+    print("Logging in")
     try:
         # Load login page
         driver.get("https://www.americastestkitchen.com/sign_in")
@@ -71,10 +72,10 @@ def login(driver, email, password):
         # Click submit button
         e = driver.find_element(
             By.XPATH, r"//*[@id='app-content']/main/section/section/article[1]/form/fieldset/div[2]/button")
-        e.click()
-        time.sleep(10)
-        # Load recipes page
-        return driver
+        driver.execute_script("arguments[0].click();", e)
+        #e.click()
+        wait = WebDriverWait(driver, timeout=99)
+        wait.until(lambda driver: driver.current_url != "https://www.americastestkitchen.com/sign_in")
     except Exception as e:
         print("Couldn't log in")
         print(e)
@@ -123,45 +124,49 @@ def check_exists_by_class(class_name):
     return True
 
 # ATK gets a bit tricky and two different ways of loading more recipes, depending on cookbook vs category search
-def check_exists_by_text():
-    # Check if a page element exists based on class name (return bool)
+def check_more_recipes(driver):
     try:
-        driver.find_element(By.LINK_TEXT, 'Show More Recipes')
+        # cookbooks
+        driver.find_element(By.CLASS_NAME, 'browse-load-more')
     except NoSuchElementException:
         try:
-            driver.find_element(By.PARTIAL_LINK_TEXT, 'MORE RECIPES')
+            # search results
+            driver.find_element(By.XPATH, '//*[@id="main"]/div[1]/section[2]/div/div/div[2]/div[2]/div/button')
         except NoSuchElementException:
             return False
     return True
 
 
-def load_full_page(driver):
+def load_full_page(driver):    
     # Check for "Load More Recipes" button and click it until all are loaded
-    #while check_exists_by_class('browse-load-more') == True:
-    while check_exists_by_text() == True:
-        try:
-            #e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
-            e = driver.find_element(By.LINK_TEXT, 'Show More Recipes')
-            e.click()
-        except:
-            try:
-                #e = driver.find_element(By.CLASS_NAME, 'browse-load-more')
-                e = driver.find_element(By.PARTIAL_LINK_TEXT, 'MORE RECIPES')
-                e.click()
-            except:
-            # Sometimes a pop-up covers the screen, so we close that
+    print("Loading all recipes", end='')
+    while check_more_recipes(driver) == True:
+        print('.', end='', flush=True)
+        try: # cookbooks
+            e = driver.find_element(By.CLASS_NAME, 'browse-load-more')                    
+            driver.execute_script("arguments[0].click();", e)
+            #e.click()
+        except NoSuchElementException:
+            try: # search results
+                e = driver.find_element(By.XPATH, '//*[@id="main"]/div[1]/section[2]/div/div/div[2]/div[2]/div/button')
+                driver.execute_script("arguments[0].click();", e)
+                #e.click()
+            except: # Maybe there's a popup
                 try:
-                    d = driver.find_element(By.CLASS_NAME, 'bx-button')
-                    d.click()
+                    pop = driver.find_element(By.CLASS_NAME, 'bx-button')
+                    driver.execute_script("arguments[0].click();", pop)
+                    #pop.click()
                 except:
                     # This is another pop-up that covers the screen, so we close that too
                     try:
-                        f = driver.find_element(By.CLASS_NAME, 'bx-close-link')
-                        f.click()
+                        pop = driver.find_element(By.CLASS_NAME, 'bx-close-link')
+                        driver.execute_script("arguments[0].click();", pop)
+                        #pop.click()
                     except Exception as e:
                         # Other exceptions can be added here (additional pop-ups)
-                        pass
-    return driver
+                        print(e)
+        time.sleep(2)
+    print("\n", flush=True)
 
 def make_image(driver, slug, savepath):
     """
@@ -193,11 +198,10 @@ def make_json(driver):
     """
     try:
         d = driver.find_element(By.XPATH, '//*[@id="why-this-works"]/p/button')
-        d.click()
+        driver.execute_script("arguments[0].click();", d)
+        #d.click()
     except:
         pass # this is fine, since it just means that the full text is already visible, so let's keep chrome from killing everything
-    
-    time.sleep(2)
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     
@@ -300,11 +304,10 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     # Refresh to prevent loading errors
     driver.refresh()
     time.sleep(15)
-    #print("page = " + page) # DEBUG
-    #print("current_url preload = " + driver.current_url) # DEBUG
-    driver = load_full_page(driver)
-    #print("current_url post-load = " + driver.current_url) # DEBUG
-    time.sleep(2)
+#    wait = WebDriverWait(driver, timeout=99)
+#    wait.until(lambda x: x.find_element(By.CLASS_NAME, "atkGlobalSiteHeader"))
+
+    load_full_page(driver)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
@@ -312,6 +315,8 @@ def save_recipes(driver, page, do_image, do_json, savepath):
     links = []
     for link in soup.findAll('a', attrs={'href': re.compile("^\/recipes\/[0-9]")}):
         l = link.get('href')
+        if re.search("\/print$", l): # I don't know why ATK keeps serving up print versions
+            exit()
         links.append(l)
     #print("current_url = " + driver.current_url) # DEBUG
     #print("page = " + page) # DEBUG
@@ -347,9 +352,10 @@ def save_recipes(driver, page, do_image, do_json, savepath):
             driver.get("https://www.cooksillustrated.com/recipes/10610-all-purpose-caramel-sauce")
         else:
             driver.get("https://www.americastestkitchen.com{0}".format(link))
-        
-        time.sleep(1)
-        
+        time.sleep(2)
+        #wait = WebDriverWait(driver, timeout=99)
+        #wait.until(lambda x: x.find_element(By.CLASS_NAME, "detail-page-main"))
+
         if do_json:
             recipe, img = make_json(driver)
             with open(savepath+"/"+slug+".json", "w") as write_file:
@@ -372,12 +378,13 @@ if __name__ == "__main__":
         print("Read " + str(len(pages)) + " recipe pages to scrape from")
 
     driver = create_driver(args.driver)
-    driver = login(driver, args.email, args.password)
-    for page in pages:
-        print("Working on "+page)
-        save_recipes(driver, page, args.image, args.json, args.out_path)
-    
-    # Close chrome
-    driver.close()
-    if args.image:
-        format_images(save_path)
+    try:
+        login(driver, args.email, args.password)
+        for page in pages:
+            print("Working on "+page)
+            save_recipes(driver, page, args.image, args.json, args.out_path)
+        if args.image:
+            format_images(save_path)        
+    finally:
+        # Close chrome
+        driver.close()
