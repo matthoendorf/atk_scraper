@@ -26,6 +26,7 @@ def parse_arguments():
     parser.add_argument('-r', '--recipes', required=True, help="Text file containing a list of ATK pages to grab recipes from. See recipes.txt for an example")
     parser.add_argument('-i', '--image', required=False, default=True, help="Get recipes as images (default True)")
     parser.add_argument('-j', '--json', required=False, default=True, help="Get recipes as json for mealie (default True)")
+    parser.add_argument('--sortby', required=False, default='popularity', help='Method to sort recipes for retrieval. Can be "popularity" or "date" (default "popularity")')
     parser.add_argument('-o', '--out_path', default='./recipes/', help="Location to save images/json (default './recipes/')")
     parser.add_argument('--driver', default='./chromedriver', help="Path to the chromedriver. (default './chromedriver')")
     parser.add_argument('--verbose', action='store_true', default=False, help="verbose output")
@@ -205,7 +206,7 @@ def make_json(driver):
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     
-    #TITLE
+    #TITLE (no try/except b/c everything should have a title)
     title = soup.find('div', attrs={'class': "detail-page-main"})
     title = title['data-document-title']
 
@@ -286,7 +287,10 @@ def make_json(driver):
     recipe["tags"] = tags
     recipe["totalTime"] = totaltime
     recipe["recipeYield"] = recipeyield
-    recipe["recipeIngredient"] = [{"note":ingredient, "referenceId":str(uuid.uuid4())} for ingredient in ingredients]
+    recipe["recipeIngredient"] = [{"note":ingredient, 
+                                   "referenceId":str(uuid.uuid4()),
+                                    "disableAmount":True,
+                                    "quantity": 1} for ingredient in ingredients]
     recipe["recipeInstructions"] = [{"text":step, "id":str(uuid.uuid4()), "ingredientReferences":[]} for step in steps]
     recipe["org_url"]  = driver.current_url
     recipe["settings"] = {
@@ -295,18 +299,24 @@ def make_json(driver):
         "showAssets": True,
         "landscapeView": True,
         "disableComments": False,
-        "disableAmount": False
+        "disableAmount": True
     }
     return (recipe, img_handle)
 
-def save_recipes(driver, page, do_image, do_json, savepath):
+def save_recipes(driver, page, do_image, do_json, sortby, savepath):
     driver.get(page)
     # Refresh to prevent loading errors
     driver.refresh()
     time.sleep(15)
-#    wait = WebDriverWait(driver, timeout=99)
-#    wait.until(lambda x: x.find_element(By.CLASS_NAME, "atkGlobalSiteHeader"))
 
+    if sortby == "popularity":
+        print("Sorting by popularity")
+        e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
+        driver.execute_script("arguments[0].click();", e)
+    if sortby == "date":
+        print("Sorting by popularity")
+        e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
+        driver.execute_script("arguments[0].click();", e)
     load_full_page(driver)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -318,8 +328,6 @@ def save_recipes(driver, page, do_image, do_json, savepath):
         if re.search("\/print$", l): # I don't know why ATK keeps serving up print versions
             exit()
         links.append(l)
-    #print("current_url = " + driver.current_url) # DEBUG
-    #print("page = " + page) # DEBUG
 
     # Variables for monitoring progress
     links = sorted(set(links))
@@ -353,8 +361,6 @@ def save_recipes(driver, page, do_image, do_json, savepath):
         else:
             driver.get("https://www.americastestkitchen.com{0}".format(link))
         time.sleep(2)
-        #wait = WebDriverWait(driver, timeout=99)
-        #wait.until(lambda x: x.find_element(By.CLASS_NAME, "detail-page-main"))
 
         if do_json:
             recipe, img = make_json(driver)
@@ -382,7 +388,7 @@ if __name__ == "__main__":
         login(driver, args.email, args.password)
         for page in pages:
             print("Working on "+page)
-            save_recipes(driver, page, args.image, args.json, args.out_path)
+            save_recipes(driver, page, args.image, args.json, args.sortby, args.out_path)
         if args.image:
             format_images(save_path)        
     finally:
