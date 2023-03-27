@@ -339,7 +339,7 @@ def save_recipes(driver, page, do_image, do_json, sortby, savepath):
             pass # b/c sometimes there's no date/popularity sorting
     if sortby == "date":
         try:
-            print("Sorting by popularity")
+            print("Sorting by dat")
             e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
             driver.execute_script("arguments[0].click();", e)
         except:
