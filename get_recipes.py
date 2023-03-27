@@ -262,7 +262,6 @@ def make_json(driver):
         try:
             t = group.find('h3', attrs={'class': 'sc-c1ff5437-0 ciEfUL recipe-ingredient-group__title'})
             t = t.get_text("", strip=True)
-            print(t)
         except:
             t = "none"
         ingredients.append("TITLE:"+t)
@@ -298,7 +297,6 @@ def make_json(driver):
     i = []
     title=None
     for ingredient in ingredients:
-        print(title)
         if re.match("TITLE:", ingredient):
             title = re.match("TITLE:(.*)", ingredient).group(1)
             if title=="none":
