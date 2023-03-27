@@ -258,13 +258,20 @@ def make_json(driver):
 
     # INGREDIENTS
     ingredients = []
-    for ingredient in soup.find_all('span', attrs={'class': 'ingredient__title'}):
+    for group in soup.find_all('div', attrs={'class': 'sc-2b9c8573-0 hiMQUR recipe-ingredient-group'}):
         try:
-            i = ingredient.get_text(" ", strip=True)
+            t = group.find('h3', attrs={'class': 'sc-c1ff5437-0 ciEfUL recipe-ingredient-group__title'})
+            t = t.get_text("", strip=True)
+            print(t)
         except:
-            i = ""
-        ingredients.append(i)
-    
+            t = "none"
+        ingredients.append("TITLE:"+t)
+        for ingredient in group.find_all('span', attrs={'class': 'ingredient__title'}):
+            try:
+                i = ingredient.get_text(" ", strip=True)
+            except:
+                i = ""
+            ingredients.append(i)
     # STEPS
     steps = []
     r = re.compile('^(1 INSTRUCTIONS | \d )(.*)')
@@ -287,10 +294,24 @@ def make_json(driver):
     recipe["tags"] = tags
     recipe["totalTime"] = totaltime
     recipe["recipeYield"] = recipeyield
-    recipe["recipeIngredient"] = [{"note":ingredient, 
-                                   "referenceId":str(uuid.uuid4()),
-                                    "disableAmount":True,
-                                    "quantity": 1} for ingredient in ingredients]
+    
+    i = []
+    title=None
+    for ingredient in ingredients:
+        print(title)
+        if re.match("TITLE:", ingredient):
+            title = re.match("TITLE:(.*)", ingredient).group(1)
+            if title=="none":
+                title=None
+            continue
+        i.append({"title":title,
+                "note":ingredient, 
+                "referenceId":str(uuid.uuid4()),
+                "disableAmount":True,
+                "quantity": 1})
+        title = None
+    recipe["recipeIngredient"] = i
+    
     recipe["recipeInstructions"] = [{"text":step, "id":str(uuid.uuid4()), "ingredientReferences":[]} for step in steps]
     recipe["org_url"]  = driver.current_url
     recipe["settings"] = {
@@ -309,14 +330,14 @@ def save_recipes(driver, page, do_image, do_json, sortby, savepath):
     driver.refresh()
     time.sleep(15)
 
-    if sortby == "popularity":
-        print("Sorting by popularity")
-        e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
-        driver.execute_script("arguments[0].click();", e)
-    if sortby == "date":
-        print("Sorting by popularity")
-        e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
-        driver.execute_script("arguments[0].click();", e)
+    #if sortby == "popularity":
+    #    print("Sorting by popularity")
+    #    e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
+    #    driver.execute_script("arguments[0].click();", e)
+    #if sortby == "date":
+    #    print("Sorting by popularity")
+    #    e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
+    #    driver.execute_script("arguments[0].click();", e)
     load_full_page(driver)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -390,7 +411,7 @@ if __name__ == "__main__":
             print("Working on "+page)
             save_recipes(driver, page, args.image, args.json, args.sortby, args.out_path)
         if args.image:
-            format_images(save_path)        
+            format_images(args.out_path)        
     finally:
         # Close chrome
         driver.close()
