@@ -328,14 +328,22 @@ def save_recipes(driver, page, do_image, do_json, sortby, savepath):
     driver.refresh()
     time.sleep(15)
 
-    #if sortby == "popularity":
-    #    print("Sorting by popularity")
-    #    e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
-    #    driver.execute_script("arguments[0].click();", e)
-    #if sortby == "date":
-    #    print("Sorting by popularity")
-    #    e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
-    #    driver.execute_script("arguments[0].click();", e)
+    driver.set_window_size(1920, 2048)
+    time.sleep(2)
+    if sortby == "popularity":
+        try:
+            print("Sorting by popularity")
+            e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
+            driver.execute_script("arguments[0].click();", e)
+        except:
+            pass # b/c sometimes there's no date/popularity sorting
+    if sortby == "date":
+        try:
+            print("Sorting by popularity")
+            e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
+            driver.execute_script("arguments[0].click();", e)
+        except:
+            pass # b/c sometimes there's no date/popularity sorting
     load_full_page(driver)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
