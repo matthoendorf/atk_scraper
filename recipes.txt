@@ -60,3 +60,6 @@ https://www.americastestkitchen.com/recipes/browse?refinementList%5Bsearch_recip
 https://www.americastestkitchen.com/recipes/browse/salads?q=&fR[search_browse_slugs][0]=salads&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
 # Vegetables
 https://www.americastestkitchen.com/recipes/browse?refinementList%5Bsearch_main_ingredient_list%5D%5B0%5D=Vegetables&refinementList%5Bsearch_document_klass%5D%5B0%5D=recipe
+# Everything chocolate
+https://www.americastestkitchen.com/books/everything-chocolate?q=&fR[search_browse_slugs][0]=everything-chocolate&fR[search_document_klass][0]=recipe&fR[search_site_list][0]=atk
+
