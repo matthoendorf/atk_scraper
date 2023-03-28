@@ -258,12 +258,14 @@ def make_json(driver):
 
     # INGREDIENTS
     ingredients = []
-    for group in soup.find_all('div', attrs={'class': 'sc-2b9c8573-0 hiMQUR recipe-ingredient-group'}):
+    for group in soup.find_all('div', attrs={'class': re.compile('recipe-ingredient-group$')}):
         try:
-            t = group.find('h3', attrs={'class': 'sc-c1ff5437-0 ciEfUL recipe-ingredient-group__title'})
+            t = group.find('h3', attrs={'class': re.compile('recipe-ingredient-group__title$')})
             t = t.get_text("", strip=True)
         except:
             t = "none"
+        #    t = group.find('h3', attrs={'class': 'sc-c1ff5437-0 hsebr recipe-ingredient-group__title'})
+            
         ingredients.append("TITLE:"+t)
         for ingredient in group.find_all('span', attrs={'class': 'ingredient__title'}):
             try:
@@ -335,22 +337,22 @@ def save_recipes(driver, page, do_image, do_json, sortby, savepath):
             print("Sorting by popularity")
             e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
             driver.execute_script("arguments[0].click();", e)
-        except:
-            pass # b/c sometimes there's no date/popularity sorting
+        except Exception as e:
+            print(e) # b/c sometimes there's no date/popularity sorting, e.g. books
     if sortby == "date":
         try:
             print("Sorting by date")
             e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
             driver.execute_script("arguments[0].click();", e)
-        except:
-            pass # b/c sometimes there's no date/popularity sorting
+        except Exception as e:
+            print(e) # b/c sometimes there's no date/popularity sorting, e.g. books
     load_full_page(driver)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     # Build list of recipe links
     links = []
-    for link in soup.findAll('a', attrs={'href': re.compile("^\/recipes\/[0-9]")}):
+    for link in soup.findAll('a', attrs={'href': re.compile("\/recipes\/[0-9]+-[a-zA-Z]+")}): # matches ATK, CooksIllustrates, and CooksCountry
         l = link.get('href')
         if re.search("\/print$", l): # I don't know why ATK keeps serving up print versions
             exit()
