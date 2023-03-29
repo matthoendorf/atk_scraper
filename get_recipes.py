@@ -4,9 +4,11 @@ import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 import os
 from os.path import basename
 from os.path import splitext
@@ -24,7 +26,7 @@ def parse_arguments():
     parser.add_argument('-e', '--email', required=True, help="ATK email for login.")
     parser.add_argument('-p', '--password', required=True, help="SINGLE QUOTED ATK password for login. For example 'my_password!*'")
     parser.add_argument('-r', '--recipes', required=True, help="Text file containing a list of ATK pages to grab recipes from. See recipes.txt for an example")
-    parser.add_argument('-i', '--image', required=False, default=True, help="Get recipes as images (default True)")
+    parser.add_argument('-i', '--image', required=False, default=False, help="Get recipes as images (default False)")
     parser.add_argument('-j', '--json', required=False, default=True, help="Get recipes as json for mealie (default True)")
     parser.add_argument('--sortby', required=False, default='popularity', help='Method to sort recipes for retrieval. Can be "popularity" or "date" (default "popularity")')
     parser.add_argument('-o', '--out_path', default='./recipes/', help="Location to save images/json (default './recipes/')")
@@ -52,7 +54,7 @@ def create_driver(path):
         chrome_options.add_argument('--start-maximized')
         chrome_options.add_experimental_option(
             'excludeSwitches', ['enable-logging'])
-        driver = webdriver.Chrome(path, options=chrome_options)
+        driver = webdriver.Chrome(service=Service(path), options=chrome_options)
         return driver
     except Exception as e:
         print("Couldn't create chrome driver")
@@ -71,12 +73,10 @@ def login(driver, email, password):
         e = driver.find_element(By.NAME, "password")
         e.send_keys(password)
         # Click submit button
-        e = driver.find_element(
-            By.XPATH, r"//*[@id='app-content']/main/section/section/article[1]/form/fieldset/div[2]/button")
-        driver.execute_script("arguments[0].click();", e)
-        #e.click()
+        e = driver.find_element(By.XPATH, r"//*[@id='app-content']/main/section/section/article[1]/form/fieldset/div[2]/button")
+        e.click()
         wait = WebDriverWait(driver, timeout=99)
-        wait.until(lambda driver: driver.current_url != "https://www.americastestkitchen.com/sign_in")
+        wait.until(lambda d: d.current_url != "https://www.americastestkitchen.com/sign_in")
     except Exception as e:
         print("Couldn't log in")
         print(e)
@@ -126,12 +126,10 @@ def check_exists_by_class(class_name):
 
 # ATK gets a bit tricky and two different ways of loading more recipes, depending on cookbook vs category search
 def check_more_recipes(driver):
-    try:
-        # cookbooks
+    try: # cookbooks
         driver.find_element(By.CLASS_NAME, 'browse-load-more')
     except NoSuchElementException:
-        try:
-            # search results
+        try: # search results
             driver.find_element(By.XPATH, '//*[@id="main"]/div[1]/section[2]/div/div/div[2]/div[2]/div/button')
         except NoSuchElementException:
             return False
@@ -141,32 +139,27 @@ def check_more_recipes(driver):
 def load_full_page(driver):    
     # Check for "Load More Recipes" button and click it until all are loaded
     print("Loading all recipes", end='')
+    
+    # Make sure that we are in a good state before starting
     while check_more_recipes(driver) == True:
         print('.', end='', flush=True)
         try: # cookbooks
-            e = driver.find_element(By.CLASS_NAME, 'browse-load-more')                    
-            driver.execute_script("arguments[0].click();", e)
-            #e.click()
-        except NoSuchElementException:
-            try: # search results
-                e = driver.find_element(By.XPATH, '//*[@id="main"]/div[1]/section[2]/div/div/div[2]/div[2]/div/button')
-                driver.execute_script("arguments[0].click();", e)
-                #e.click()
-            except: # Maybe there's a popup
-                try:
+            WebDriverWait(driver, 1).until(
+                EC.any_of(
+                    EC.element_to_be_clickable((By.CLASS_NAME, "browse-load-more")),
+                    EC.element_to_be_clickable((By.XPATH, '//*[@id="main"]/div[1]/section[2]/div/div/div[2]/div[2]/div/button'))
+                )
+            ).click()
+        except TimeoutException:
+            try: # Maybe there's a popup
                     pop = driver.find_element(By.CLASS_NAME, 'bx-button')
-                    driver.execute_script("arguments[0].click();", pop)
-                    #pop.click()
-                except:
-                    # This is another pop-up that covers the screen, so we close that too
-                    try:
-                        pop = driver.find_element(By.CLASS_NAME, 'bx-close-link')
-                        driver.execute_script("arguments[0].click();", pop)
-                        #pop.click()
-                    except Exception as e:
-                        # Other exceptions can be added here (additional pop-ups)
-                        print(e)
-        time.sleep(2)
+                    pop.click()
+            except: # This is another pop-up that covers the screen, so we close that too
+                try:
+                    pop = driver.find_element(By.CLASS_NAME, 'bx-close-link')
+                    pop.click()
+                except Exception as e: # Other exceptions can be added here (additional pop-ups)
+                    pass
     print("\n", flush=True)
 
 def make_image(driver, slug, savepath):
@@ -197,10 +190,10 @@ def make_json(driver):
     """
     Returns dictionary of recipe in mealie-formatting, ready for json conversion
     """
+    WebDriverWait(driver, 2).until(EC.visibility_of_element_located((By.CLASS_NAME, "detail-page-main")))
     try:
         d = driver.find_element(By.XPATH, '//*[@id="why-this-works"]/p/button')
-        driver.execute_script("arguments[0].click();", d)
-        #d.click()
+        d.click()
     except:
         pass # this is fine, since it just means that the full text is already visible, so let's keep chrome from killing everything
 
@@ -264,7 +257,6 @@ def make_json(driver):
             t = t.get_text("", strip=True)
         except:
             t = "none"
-        #    t = group.find('h3', attrs={'class': 'sc-c1ff5437-0 hsebr recipe-ingredient-group__title'})
             
         ingredients.append("TITLE:"+t)
         for ingredient in group.find_all('span', attrs={'class': 'ingredient__title'}):
@@ -325,27 +317,23 @@ def make_json(driver):
     return (recipe, img_handle)
 
 def save_recipes(driver, page, do_image, do_json, sortby, savepath):
-    driver.get(page)
-    # Refresh to prevent loading errors
-    driver.refresh()
-    time.sleep(15)
+    try:
+        driver.get(page)
+    except Exception as e:
+        print(e)
 
-    driver.set_window_size(1920, 2048)
-    time.sleep(2)
     if sortby == "popularity":
         try:
             print("Sorting by popularity")
-            e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label')
-            driver.execute_script("arguments[0].click();", e)
-        except Exception as e:
-            print(e) # b/c sometimes there's no date/popularity sorting, e.g. books
+            WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="show-hide--SortBy"]/div[1]/label'))).click()
+        except:
+            pass # b/c sometimes there's no date/popularity sorting, e.g. books
     if sortby == "date":
         try:
             print("Sorting by date")
-            e = driver.find_element(By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label')
-            driver.execute_script("arguments[0].click();", e)
-        except Exception as e:
-            print(e) # b/c sometimes there's no date/popularity sorting, e.g. books
+            WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="show-hide--SortBy"]/div[2]/label'))).click()
+        except:
+            pass # b/c sometimes there's no date/popularity sorting, e.g. books
     load_full_page(driver)
     # Pass page source to beautiful soup so we can extract recipe links
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -389,7 +377,6 @@ def save_recipes(driver, page, do_image, do_json, sortby, savepath):
             driver.get("https://www.cooksillustrated.com/recipes/10610-all-purpose-caramel-sauce")
         else:
             driver.get("https://www.americastestkitchen.com{0}".format(link))
-        time.sleep(2)
 
         if do_json:
             recipe, img = make_json(driver)
