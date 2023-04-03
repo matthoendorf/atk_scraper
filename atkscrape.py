@@ -18,24 +18,6 @@ import uuid
 import json
 import glob
 from PIL import Image, ImageChops, ImageOps
-import argparse
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        prog="atk_scraper",
-        description = "scrape ATK recipes to images, mealie json, or both")
-    parser.add_argument('-e', '--email', required=True, help="ATK email for login.")
-    parser.add_argument('-p', '--password', required=True, help="SINGLE QUOTED ATK password for login. For example 'my_password!*'")
-    parser.add_argument('-r', '--recipes', required=True, help="Text file containing a list of ATK pages to grab recipes from. See recipes.txt for an example")
-    parser.add_argument('-i', '--image', required=False, default=False, help="Get recipes as images (default False)")
-    parser.add_argument('-j', '--json', required=False, default=True, help="Get recipes as json for mealie (default True)")
-    parser.add_argument('--sortby', required=False, default='popularity', help='Method to sort recipes for retrieval. Can be "popularity" or "date" (default "popularity")')
-    parser.add_argument('-o', '--out_path', default='./recipes/', help="Location to save images/json (default './recipes/')")
-    parser.add_argument('--driver', default='./chromedriver', help="Path to the chromedriver. (default './chromedriver')")
-    parser.add_argument('--verbose', action='store_true', default=False, help="verbose output")
-    
-    args = parser.parse_args()
-    return args
 
 def read_pages(filename):
     pages = []
